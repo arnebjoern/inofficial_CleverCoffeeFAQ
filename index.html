@@ -85,8 +85,6 @@
         .faq-header { padding: 20px 24px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: var(--radius-lg); }
         .faq-header-content { display: flex; flex-direction: column; gap: 8px; padding-right: 20px; flex-grow: 1; }
         .faq-meta { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px; }
-        
-        /* Neu: Kanal-Tag oben bei der Kategorie */
         .channel-tag { background: #f3f4f6; color: #4b5563; padding: 2px 8px; border-radius: 4px; font-size: 10px; }
 
         .faq-question { font-weight: 700; font-size: 1.1rem; margin: 0; color: var(--text-main); line-height: 1.4; }
@@ -105,27 +103,10 @@
         .faq-answer-inner { overflow: hidden; }
         .faq-answer { padding: 0 24px 24px 24px; line-height: 1.7; color: #4b5563; font-size: 16px; }
         
-        /* Neu: Die Meta-Daten Box unten in der Antwort */
-        .faq-details {
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px dashed var(--border);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            font-size: 12px;
-        }
-        .detail-item {
-            background: #f9fafb;
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            padding: 4px 10px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+        .faq-details { margin-top: 20px; padding-top: 15px; border-top: 1px dashed var(--border); display: flex; flex-wrap: wrap; gap: 10px; font-size: 13px; }
+        .detail-item { background: #f9fafb; border: 1px solid var(--border); color: var(--text-muted); padding: 5px 12px; border-radius: 6px; display: flex; align-items: center; gap: 6px; }
         .detail-label { font-weight: 600; color: #374151; }
+        .detail-value { font-weight: 600; color: var(--text-main); }
 
         mark { background-color: var(--highlight); padding: 0.1em 0.3em; border-radius: 4px; color: #000; font-weight: 500; }
         .no-results { text-align: center; padding: 60px 20px; color: var(--text-muted); background: var(--surface); border-radius: var(--radius-lg); border: 2px dashed #d1d5db; font-weight: 500; }
@@ -150,7 +131,6 @@
     <div id="toast">✅ Link kopiert!</div>
 
     <script>
-        // UPDATE: Suchmaschine durchsucht jetzt auch Kanäle und Autoren
         const fuseOptions = {
             keys: ['Frage', 'Antwort', 'Kategorie', 'Fragesteller', 'Antwort-Autor', 'Kanal'],
             threshold: 0.3, 
@@ -233,6 +213,21 @@
             });
         }
 
+        function formatDateTime(datumString) {
+            if (!datumString) return 'Unbekannt';
+            
+            // Nimmt Format "YYYY-MM-DD HH:MM:SS" und macht daraus "DD.MM.YYYY, HH:MM Uhr"
+            const parts = datumString.split(' ');
+            if (parts.length === 2) {
+                const dateParts = parts[0].split('-');
+                const timeParts = parts[1].split(':');
+                if (dateParts.length === 3 && timeParts.length >= 2) {
+                    return `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}, ${timeParts[0]}:${timeParts[1]} Uhr`;
+                }
+            }
+            return datumString; // Fallback, falls das Format abweicht
+        }
+
         function updateResults() {
             const query = searchBox.value.trim();
             let resultsToRender = [];
@@ -262,10 +257,12 @@
                 const highlightedQuestion = query ? highlightText(data.Frage, matches, 'Frage') : data.Frage;
                 const highlightedAnswer = query ? highlightText(data.Antwort, matches, 'Antwort') : data.Antwort;
                 
-                // Neue Datenfelder extrahieren (mit Fallback, falls leer)
-                const datum = data.Datum ? data.Datum.split(' ')[0] : 'Unbekannt'; // Schneidet die Uhrzeit ab
+                // Datum und Uhrzeit formatieren
+                const datumUhrzeit = formatDateTime(data.Datum);
                 const kanal = data.Kanal ? highlightText(data.Kanal, matches, 'Kanal') : 'Unbekannt';
                 const fragesteller = data.Fragesteller ? highlightText(data.Fragesteller, matches, 'Fragesteller') : 'Anonym';
+                
+                // Manche Antworten haben vielleicht keinen zugewiesenen Autor in der JSON
                 const autor = data['Antwort-Autor'] ? highlightText(data['Antwort-Autor'], matches, 'Antwort-Autor') : 'Community';
                 const confidence = data.Confidence || '-';
 
@@ -276,7 +273,6 @@
                 const isActive = query ? 'active' : '';
                 const isShow = query ? 'show' : '';
 
-                // HTML wurde um .channel-tag und .faq-details erweitert
                 faqElement.innerHTML = `
                     <div class="faq-header ${isActive}" onclick="toggleFaq(this)">
                         <div class="faq-header-content">
@@ -299,10 +295,9 @@
                                 ${highlightedAnswer}
                                 
                                 <div class="faq-details">
-                                    <div class="detail-item"><span class="detail-label">📅 Datum:</span> ${datum}</div>
-                                    <div class="detail-item"><span class="detail-label">👤 Frage von:</span> ${fragesteller}</div>
-                                    <div class="detail-item"><span class="detail-label">💬 Antwort von:</span> ${autor}</div>
-                                    <div class="detail-item" title="Sicherheit der Zuordnung"><span class="detail-label">🤖 Score:</span> ${confidence}/10</div>
+                                    <div class="detail-item" title="Wann wurde das gefragt?"><span class="detail-label">🕒 Zeit:</span> <span class="detail-value">${datumUhrzeit}</span></div>
+                                    <div class="detail-item"><span class="detail-label">👤 Von:</span> <span class="detail-value">${fragesteller}</span></div>
+                                    <div class="detail-item"><span class="detail-label">💬 Antwort:</span> <span class="detail-value">${autor}</span></div>
                                 </div>
                             </div>
                         </div>
@@ -320,7 +315,6 @@
         function checkUrlHashAndScroll() {
             const hash = window.location.hash.substring(1);
             if (hash) {
-                // Kurze Verzögerung, damit alles in den DOM gerendert ist
                 setTimeout(() => {
                     const targetElement = document.getElementById(hash);
                     if (targetElement) {

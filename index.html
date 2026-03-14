@@ -9,7 +9,7 @@
     <style>
         /* Modernes, App-ähnliches Design */
         :root {
-            --primary: #4f46e5; /* Modernes Indigo */
+            --primary: #4f46e5; 
             --primary-hover: #4338ca;
             --bg-gradient: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
             --surface: #ffffff;
@@ -45,11 +45,7 @@
             text-shadow: 0 2px 4px rgba(255,255,255,0.5);
         }
         
-        /* Suchfeld */
-        .search-wrapper {
-            position: relative;
-            margin-bottom: 24px;
-        }
+        .search-wrapper { position: relative; margin-bottom: 24px; }
 
         #searchBox { 
             width: 100%; 
@@ -61,235 +57,82 @@
             box-shadow: var(--shadow-md);
             box-sizing: border-box; 
             outline: none; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             color: var(--text-main);
         }
         
         #searchBox::placeholder { color: #9ca3af; }
-        
-        #searchBox:focus { 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15), var(--shadow-md);
-        }
+        #searchBox:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15), var(--shadow-md); }
 
-        /* SVG Lupe */
-        .search-icon {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 24px;
-            height: 24px;
-            color: #9ca3af;
-            pointer-events: none;
-        }
+        .search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; color: #9ca3af; pointer-events: none; }
         
-        /* Kategorie Buttons (Pills) */
-        #categories { 
-            display: flex; 
-            gap: 10px; 
-            flex-wrap: wrap; 
-            margin-bottom: 40px; 
-            justify-content: center; 
-        }
+        #categories { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 40px; justify-content: center; }
         
-        .filter-btn { 
-            background: var(--surface); 
-            border: 1px solid var(--border); 
-            padding: 10px 20px; 
-            border-radius: var(--radius-full); 
-            cursor: pointer; 
-            font-size: 14px; 
-            font-weight: 600;
-            color: var(--text-muted); 
-            transition: all 0.2s ease; 
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .filter-btn:hover { 
-            border-color: #d1d5db;
-            color: var(--text-main);
-            transform: translateY(-1px);
-        }
-        
-        .filter-btn.active { 
-            background: var(--primary); 
-            border-color: var(--primary);
-            color: white; 
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-        }
+        .filter-btn { background: var(--surface); border: 1px solid var(--border); padding: 10px 20px; border-radius: var(--radius-full); cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-muted); transition: all 0.2s ease; box-shadow: var(--shadow-sm); }
+        .filter-btn:hover { border-color: #d1d5db; color: var(--text-main); transform: translateY(-1px); }
+        .filter-btn.active { background: var(--primary); border-color: var(--primary); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
 
-        /* FAQ Einträge */
-        .faq-item { 
-            background: var(--surface); 
-            border-radius: var(--radius-lg); 
-            margin-bottom: 16px; 
-            border: 1px solid var(--border);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: var(--shadow-sm);
-            scroll-margin-top: 100px; /* Damit der Anker-Link nicht unter dem Bildschirmrand klebt */
-        }
-
-        .faq-item:hover {
-            box-shadow: var(--shadow-hover);
-            transform: translateY(-2px);
-            border-color: #d1d5db;
-        }
-
-        /* Highlight-Animation, wenn man über einen Link kommt */
-        .faq-item.target-highlight {
-            animation: pulse-border 2s ease-out;
-        }
+        .faq-item { background: var(--surface); border-radius: var(--radius-lg); margin-bottom: 16px; border: 1px solid var(--border); transition: all 0.3s ease; box-shadow: var(--shadow-sm); scroll-margin-top: 100px; }
+        .faq-item:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); border-color: #d1d5db; }
+        .faq-item.target-highlight { animation: pulse-border 2s ease-out; }
+        
         @keyframes pulse-border {
             0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); border-color: var(--primary); }
             70% { box-shadow: 0 0 0 15px rgba(79, 70, 229, 0); border-color: var(--border); }
             100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
         }
 
-        .faq-header { 
-            padding: 20px 24px; 
-            cursor: pointer; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            border-radius: var(--radius-lg);
-        }
-
-        .faq-header-content {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            padding-right: 20px; 
-            flex-grow: 1;
-        }
-
-        .faq-meta { 
-            font-size: 12px; 
-            font-weight: 700;
-            color: var(--primary); 
-            text-transform: uppercase; 
-            letter-spacing: 0.05em; 
-        }
-
-        .faq-question { 
-            font-weight: 700; 
-            font-size: 1.1rem; 
-            margin: 0; 
-            color: var(--text-main); 
-            line-height: 1.4;
-        }
-
-        /* Rechte Seite im Header: Copy Button & Pfeil */
-        .faq-actions {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        /* Der Copy-Link Button */
-        .copy-btn {
-            background: transparent;
-            border: none;
-            color: #9ca3af;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 8px;
-            transition: all 0.2s;
-            opacity: 0; /* Nur sichtbar beim Hovern */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .faq-header:hover .copy-btn { opacity: 1; }
+        .faq-header { padding: 20px 24px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: var(--radius-lg); }
+        .faq-header-content { display: flex; flex-direction: column; gap: 8px; padding-right: 20px; flex-grow: 1; }
+        .faq-meta { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px; }
         
-        .copy-btn:hover {
-            background: #f3f4f6;
-            color: var(--primary);
-        }
+        /* Neu: Kanal-Tag oben bei der Kategorie */
+        .channel-tag { background: #f3f4f6; color: #4b5563; padding: 2px 8px; border-radius: 4px; font-size: 10px; }
 
+        .faq-question { font-weight: 700; font-size: 1.1rem; margin: 0; color: var(--text-main); line-height: 1.4; }
+
+        .faq-actions { display: flex; align-items: center; gap: 15px; }
+        .copy-btn { background: transparent; border: none; color: #9ca3af; cursor: pointer; padding: 8px; border-radius: 8px; transition: all 0.2s; opacity: 0; display: flex; align-items: center; justify-content: center; }
+        .faq-header:hover .copy-btn { opacity: 1; }
+        .copy-btn:hover { background: #f3f4f6; color: var(--primary); }
         .copy-btn svg { width: 18px; height: 18px; }
 
-        /* Der animierte Pfeil */
-        .faq-arrow {
-            width: 10px;
-            height: 10px;
-            border-right: 2.5px solid #9ca3af;
-            border-bottom: 2.5px solid #9ca3af;
-            transform: rotate(45deg);
-            transition: transform 0.3s ease;
-            margin-right: 5px;
-        }
-
+        .faq-arrow { width: 10px; height: 10px; border-right: 2.5px solid #9ca3af; border-bottom: 2.5px solid #9ca3af; transform: rotate(45deg); transition: transform 0.3s ease; margin-right: 5px; }
         .faq-header.active .faq-arrow { transform: rotate(-135deg); }
         
-        /* Antwort Bereich */
-        .faq-answer-wrapper { 
-            display: grid;
-            grid-template-rows: 0fr;
-            transition: grid-template-rows 0.3s ease;
-        }
+        .faq-answer-wrapper { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s ease; }
+        .faq-answer-wrapper.show { grid-template-rows: 1fr; }
+        .faq-answer-inner { overflow: hidden; }
+        .faq-answer { padding: 0 24px 24px 24px; line-height: 1.7; color: #4b5563; font-size: 16px; }
         
-        .faq-answer-wrapper.show { 
-            grid-template-rows: 1fr;
+        /* Neu: Die Meta-Daten Box unten in der Antwort */
+        .faq-details {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--border);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 12px;
         }
-
-        .faq-answer-inner {
-            overflow: hidden;
-        }
-
-        .faq-answer { 
-            padding: 0 24px 24px 24px;
-            line-height: 1.7; 
-            color: #4b5563; 
-            font-size: 16px;
-        }
-        
-        mark { 
-            background-color: var(--highlight); 
-            padding: 0.1em 0.3em; 
-            border-radius: 4px; 
-            color: #000; 
-            font-weight: 500;
-        }
-
-        .no-results {
-            text-align: center;
-            padding: 60px 20px;
+        .detail-item {
+            background: #f9fafb;
+            border: 1px solid var(--border);
             color: var(--text-muted);
-            background: var(--surface);
-            border-radius: var(--radius-lg);
-            border: 2px dashed #d1d5db;
-            font-weight: 500;
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
+        .detail-label { font-weight: 600; color: #374151; }
 
-        /* Toast Benachrichtigung (Link kopiert) */
-        #toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #111827;
-            color: white;
-            padding: 12px 24px;
-            border-radius: var(--radius-full);
-            font-weight: 600;
-            font-size: 14px;
-            opacity: 0;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-        }
+        mark { background-color: var(--highlight); padding: 0.1em 0.3em; border-radius: 4px; color: #000; font-weight: 500; }
+        .no-results { text-align: center; padding: 60px 20px; color: var(--text-muted); background: var(--surface); border-radius: var(--radius-lg); border: 2px dashed #d1d5db; font-weight: 500; }
+        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #111827; color: white; padding: 12px 24px; border-radius: var(--radius-full); font-weight: 600; font-size: 14px; opacity: 0; transition: all 0.3s ease; z-index: 1000; }
+        #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-        #toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-
-        /* Mobil-Optimierung */
-        @media (max-width: 600px) {
-            .copy-btn { opacity: 1; } /* Auf dem Handy immer anzeigen */
-        }
+        @media (max-width: 600px) { .copy-btn { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -298,7 +141,7 @@
     
     <div class="search-wrapper">
         <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-        <input type="text" id="searchBox" placeholder="Suche nach Schaltplan, MQTT, PID-Werten...">
+        <input type="text" id="searchBox" placeholder="Suche nach Begriffen, Personen oder Kanälen...">
     </div>
     
     <div id="categories"></div>
@@ -307,8 +150,9 @@
     <div id="toast">✅ Link kopiert!</div>
 
     <script>
+        // UPDATE: Suchmaschine durchsucht jetzt auch Kanäle und Autoren
         const fuseOptions = {
-            keys: ['Frage', 'Antwort', 'Kategorie'],
+            keys: ['Frage', 'Antwort', 'Kategorie', 'Fragesteller', 'Antwort-Autor', 'Kanal'],
             threshold: 0.3, 
             ignoreLocation: true,
             minMatchCharLength: 2,
@@ -326,7 +170,6 @@
         let debounceTimer;
         let isFirstLoad = true;
 
-        // Erstellt einen sauberen URL-Slug aus der Frage (z.B. "Wie geht das?" -> "wie-geht-das")
         function generateSlug(text) {
             return text.toString().toLowerCase()
                 .replace(/[äöüß]/g, m => ({'ä':'ae','ö':'oe','ü':'ue','ß':'ss'})[m])
@@ -343,7 +186,7 @@
                 updateResults(); 
             })
             .catch(error => {
-                resultsContainer.innerHTML = '<div class="no-results" style="color:#ef4444; border-color:#fca5a5;">Fehler beim Laden der FAQ-Daten. Hast du einen lokalen Server gestartet?</div>';
+                resultsContainer.innerHTML = '<div class="no-results" style="color:#ef4444; border-color:#fca5a5;">Fehler beim Laden der FAQ-Daten. Stelle sicher, dass die "faq-daten.json" existiert.</div>';
             });
 
         function renderCategoryButtons() {
@@ -360,6 +203,7 @@
         }
 
         function highlightText(text, matches, keyName) {
+            if (!text) return '';
             if (!matches) return text;
             const match = matches.find(m => m.key === keyName);
             if (!match) return text;
@@ -381,9 +225,8 @@
         }
 
         function copyLink(event, slug) {
-            event.stopPropagation(); // Verhindert, dass das Accordion auf/zu klappt
+            event.stopPropagation(); 
             const url = window.location.origin + window.location.pathname + '#' + slug;
-            
             navigator.clipboard.writeText(url).then(() => {
                 toast.classList.add('show');
                 setTimeout(() => toast.classList.remove('show'), 2500);
@@ -414,23 +257,33 @@
             resultsToRender.forEach(res => {
                 const data = res.item;
                 const matches = res.matches;
-                const slug = generateSlug(data.Frage); // Slug generieren
+                const slug = generateSlug(data.Frage); 
                 
                 const highlightedQuestion = query ? highlightText(data.Frage, matches, 'Frage') : data.Frage;
                 const highlightedAnswer = query ? highlightText(data.Antwort, matches, 'Antwort') : data.Antwort;
+                
+                // Neue Datenfelder extrahieren (mit Fallback, falls leer)
+                const datum = data.Datum ? data.Datum.split(' ')[0] : 'Unbekannt'; // Schneidet die Uhrzeit ab
+                const kanal = data.Kanal ? highlightText(data.Kanal, matches, 'Kanal') : 'Unbekannt';
+                const fragesteller = data.Fragesteller ? highlightText(data.Fragesteller, matches, 'Fragesteller') : 'Anonym';
+                const autor = data['Antwort-Autor'] ? highlightText(data['Antwort-Autor'], matches, 'Antwort-Autor') : 'Community';
+                const confidence = data.Confidence || '-';
 
                 const faqElement = document.createElement('div');
                 faqElement.className = 'faq-item';
-                faqElement.id = slug; // ID für den direkten Link setzen
+                faqElement.id = slug; 
                 
                 const isActive = query ? 'active' : '';
                 const isShow = query ? 'show' : '';
 
-                // Das SVG Icon ist das kleine "Link" Symbol
+                // HTML wurde um .channel-tag und .faq-details erweitert
                 faqElement.innerHTML = `
                     <div class="faq-header ${isActive}" onclick="toggleFaq(this)">
                         <div class="faq-header-content">
-                            <span class="faq-meta">${data.Kategorie}</span>
+                            <span class="faq-meta">
+                                ${data.Kategorie}
+                                <span class="channel-tag">#${kanal}</span>
+                            </span>
                             <h2 class="faq-question">${highlightedQuestion}</h2>
                         </div>
                         <div class="faq-actions">
@@ -442,36 +295,43 @@
                     </div>
                     <div class="faq-answer-wrapper ${isShow}">
                         <div class="faq-answer-inner">
-                            <div class="faq-answer">${highlightedAnswer}</div>
+                            <div class="faq-answer">
+                                ${highlightedAnswer}
+                                
+                                <div class="faq-details">
+                                    <div class="detail-item"><span class="detail-label">📅 Datum:</span> ${datum}</div>
+                                    <div class="detail-item"><span class="detail-label">👤 Frage von:</span> ${fragesteller}</div>
+                                    <div class="detail-item"><span class="detail-label">💬 Antwort von:</span> ${autor}</div>
+                                    <div class="detail-item" title="Sicherheit der Zuordnung"><span class="detail-label">🤖 Score:</span> ${confidence}/10</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `;
                 resultsContainer.appendChild(faqElement);
             });
 
-            // Wenn die Seite das erste Mal lädt, checken wir, ob jemand über einen Direktlink gekommen ist
             if (isFirstLoad) {
                 checkUrlHashAndScroll();
                 isFirstLoad = false;
             }
         }
 
-        // Sucht die Frage zum Hash in der URL, klappt sie auf und scrollt dorthin
         function checkUrlHashAndScroll() {
             const hash = window.location.hash.substring(1);
             if (hash) {
-                const targetElement = document.getElementById(hash);
-                if (targetElement) {
-                    const header = targetElement.querySelector('.faq-header');
-                    header.classList.add('active');
-                    targetElement.querySelector('.faq-answer-wrapper').classList.add('show');
-                    
-                    // Weich hinscrollen und kurz aufblinken lassen
-                    setTimeout(() => {
+                // Kurze Verzögerung, damit alles in den DOM gerendert ist
+                setTimeout(() => {
+                    const targetElement = document.getElementById(hash);
+                    if (targetElement) {
+                        const header = targetElement.querySelector('.faq-header');
+                        header.classList.add('active');
+                        targetElement.querySelector('.faq-answer-wrapper').classList.add('show');
+                        
                         targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         targetElement.classList.add('target-highlight');
-                    }, 100);
-                }
+                    }
+                }, 100);
             }
         }
 

@@ -84,8 +84,10 @@
 
         .faq-header { padding: 20px 24px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: var(--radius-lg); }
         .faq-header-content { display: flex; flex-direction: column; gap: 8px; padding-right: 20px; flex-grow: 1; }
-        .faq-meta { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px; }
-        .channel-tag { background: #f3f4f6; color: #4b5563; padding: 2px 8px; border-radius: 4px; font-size: 10px; }
+        .faq-meta { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        
+        .tag { background: #f3f4f6; color: #4b5563; padding: 3px 8px; border-radius: 6px; font-size: 10px; display: inline-flex; align-items: center; gap: 4px; }
+        .tag-version { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
 
         .faq-question { font-weight: 700; font-size: 1.1rem; margin: 0; color: var(--text-main); line-height: 1.4; }
 
@@ -110,10 +112,12 @@
 
         mark { background-color: var(--highlight); padding: 0.1em 0.3em; border-radius: 4px; color: #000; font-weight: 500; }
         .no-results { text-align: center; padding: 60px 20px; color: var(--text-muted); background: var(--surface); border-radius: var(--radius-lg); border: 2px dashed #d1d5db; font-weight: 500; }
+        
         #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #111827; color: white; padding: 12px 24px; border-radius: var(--radius-full); font-weight: 600; font-size: 14px; opacity: 0; transition: all 0.3s ease; z-index: 1000; }
         #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-        @media (max-width: 600px) { .copy-btn { opacity: 1; } }
+        /* Lade-Indikator */
+        #loader { text-align: center; padding: 40px; color: var(--text-muted); font-weight: 500; }
     </style>
 </head>
 <body>
@@ -122,10 +126,11 @@
     
     <div class="search-wrapper">
         <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-        <input type="text" id="searchBox" placeholder="Suche nach Begriffen, Personen oder Kanälen...">
+        <input type="text" id="searchBox" placeholder="Suche nach Begriffen, Personen oder Kanälen..." disabled>
     </div>
     
     <div id="categories"></div>
+    <div id="loader">Lade Daten & Versions-Historie... 🔄</div>
     <div id="results"></div>
 
     <div id="toast">✅ Link kopiert!</div>
@@ -142,13 +147,73 @@
         const searchBox = document.getElementById('searchBox');
         const resultsContainer = document.getElementById('results');
         const categoriesContainer = document.getElementById('categories');
+        const loader = document.getElementById('loader');
         const toast = document.getElementById('toast');
         
         let fuse;
         let faqData = [];
+        let githubReleases = [];
         let currentCategory = 'Alle';
         let debounceTimer;
         let isFirstLoad = true;
+
+        // Keywords, um veraltete Fragen automatisch rauszufiltern
+        const obsoleteKeywords = ['gefixt', 'fixed in', 'pr #', 'behoben in', 'obsolete', 'bugfix'];
+
+        function isObsolete(text) {
+            const lowerText = text.toLowerCase();
+            return obsoleteKeywords.some(keyword => lowerText.includes(keyword));
+        }
+
+        // Parallel beide Datenquellen abrufen (FAQ-JSON und GitHub API)
+        Promise.all([
+            fetch('faq-daten.json').then(res => res.json()),
+            fetch('https://api.github.com/repos/rancilio-pid/clevercoffee/releases')
+                .then(res => res.json())
+                .catch(err => {
+                    console.warn("GitHub API Limit erreicht oder Offline. Versionen werden ignoriert.");
+                    return []; 
+                })
+        ])
+        .then(([faqJson, releasesData]) => {
+            // GitHub Releases nach Datum sortieren (Neueste zuerst)
+            if (Array.isArray(releasesData)) {
+                githubReleases = releasesData.map(r => ({
+                    version: r.tag_name,
+                    date: new Date(r.published_at)
+                })).sort((a, b) => b.date - a.date);
+            }
+
+            // FAQ-Daten filtern und aufbereiten
+            faqData = faqJson.filter(item => {
+                // 1. Veraltete Bugs direkt aus der Liste werfen
+                if (isObsolete(item.Antwort)) return false;
+                return true;
+            });
+
+            // Suchmaschine & UI starten
+            loader.style.display = 'none';
+            searchBox.disabled = false;
+            fuse = new Fuse(faqData, fuseOptions);
+            renderCategoryButtons();
+            updateResults();
+        })
+        .catch(error => {
+            loader.style.display = 'none';
+            resultsContainer.innerHTML = '<div class="no-results" style="color:#ef4444; border-color:#fca5a5;">Fehler beim Laden der FAQ-Daten.</div>';
+        });
+
+        // Berechnet die zum Zeitpunkt der Frage aktuelle Version
+        function getVersionForDate(dateString) {
+            if (githubReleases.length === 0 || !dateString) return null;
+            
+            // "2023-12-23 16:18:27" für Safari/Firefox kompatibel machen
+            const faqDate = new Date(dateString.replace(' ', 'T'));
+            
+            // Finde das erste Release, das VOR der Frage veröffentlicht wurde
+            const activeRelease = githubReleases.find(r => r.date <= faqDate);
+            return activeRelease ? activeRelease.version : 'Veraltet';
+        }
 
         function generateSlug(text) {
             return text.toString().toLowerCase()
@@ -156,18 +221,6 @@
                 .replace(/[^a-z0-9]+/g, '-')
                 .replace(/(^-|-$)+/g, '');
         }
-
-        fetch('faq-daten.json')
-            .then(response => response.json())
-            .then(data => {
-                faqData = data;
-                fuse = new Fuse(faqData, fuseOptions);
-                renderCategoryButtons();
-                updateResults(); 
-            })
-            .catch(error => {
-                resultsContainer.innerHTML = '<div class="no-results" style="color:#ef4444; border-color:#fca5a5;">Fehler beim Laden der FAQ-Daten. Stelle sicher, dass die "faq-daten.json" existiert.</div>';
-            });
 
         function renderCategoryButtons() {
             const categories = ['Alle', ...new Set(faqData.map(item => item.Kategorie).filter(Boolean))];
@@ -215,8 +268,6 @@
 
         function formatDateTime(datumString) {
             if (!datumString) return 'Unbekannt';
-            
-            // Nimmt Format "YYYY-MM-DD HH:MM:SS" und macht daraus "DD.MM.YYYY, HH:MM Uhr"
             const parts = datumString.split(' ');
             if (parts.length === 2) {
                 const dateParts = parts[0].split('-');
@@ -225,7 +276,7 @@
                     return `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}, ${timeParts[0]}:${timeParts[1]} Uhr`;
                 }
             }
-            return datumString; // Fallback, falls das Format abweicht
+            return datumString; 
         }
 
         function updateResults() {
@@ -257,14 +308,14 @@
                 const highlightedQuestion = query ? highlightText(data.Frage, matches, 'Frage') : data.Frage;
                 const highlightedAnswer = query ? highlightText(data.Antwort, matches, 'Antwort') : data.Antwort;
                 
-                // Datum und Uhrzeit formatieren
                 const datumUhrzeit = formatDateTime(data.Datum);
                 const kanal = data.Kanal ? highlightText(data.Kanal, matches, 'Kanal') : 'Unbekannt';
                 const fragesteller = data.Fragesteller ? highlightText(data.Fragesteller, matches, 'Fragesteller') : 'Anonym';
-                
-                // Manche Antworten haben vielleicht keinen zugewiesenen Autor in der JSON
                 const autor = data['Antwort-Autor'] ? highlightText(data['Antwort-Autor'], matches, 'Antwort-Autor') : 'Community';
-                const confidence = data.Confidence || '-';
+                
+                // Hole die GitHub Version
+                const version = getVersionForDate(data.Datum);
+                const versionHtml = version ? `<span class="tag tag-version" title="Aktuelle Version zum Zeitpunkt der Frage">📦 ${version}</span>` : '';
 
                 const faqElement = document.createElement('div');
                 faqElement.className = 'faq-item';
@@ -278,7 +329,8 @@
                         <div class="faq-header-content">
                             <span class="faq-meta">
                                 ${data.Kategorie}
-                                <span class="channel-tag">#${kanal}</span>
+                                <span class="tag">#${kanal}</span>
+                                ${versionHtml}
                             </span>
                             <h2 class="faq-question">${highlightedQuestion}</h2>
                         </div>
@@ -321,7 +373,6 @@
                         const header = targetElement.querySelector('.faq-header');
                         header.classList.add('active');
                         targetElement.querySelector('.faq-answer-wrapper').classList.add('show');
-                        
                         targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         targetElement.classList.add('target-highlight');
                     }

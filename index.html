@@ -301,6 +301,25 @@
         [data-theme="dark"] .tag-version { background: #312e81; color: #a5b4fc; border-color: #4338ca; }
         .tag-status-updated { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
         [data-theme="dark"] .tag-status-updated { background: #78350f; color: #fcd34d; border-color: #b45309; }
+        .tag-obsolet { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+        [data-theme="dark"] .tag-obsolet { background: #7f1d1d; color: #fca5a5; border-color: #991b1b; }
+
+        /* Obsolet items */
+        .faq-item.obsolet { opacity: 0.55; border-style: dashed; }
+        .faq-item.obsolet:hover { opacity: 0.8; }
+        .faq-item.obsolet .faq-question { text-decoration: line-through; text-decoration-color: var(--danger); }
+
+        /* Obsolet toggle */
+        .obsolet-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+            cursor: pointer;
+            user-select: none;
+        }
+        .obsolet-toggle input { accent-color: var(--primary); cursor: pointer; width: 16px; height: 16px; }
 
         .confidence-dot {
             display: inline-block;
@@ -513,7 +532,10 @@
     <div id="categories"></div>
     <div class="stats-bar">
         <span id="statsText">Lade FAQs…</span>
-        <span id="statsCount"></span>
+        <label class="obsolet-toggle">
+            <input type="checkbox" id="showObsolet" onchange="updateResults()">
+            Veraltete anzeigen (<span id="obsoletCount">0</span>)
+        </label>
     </div>
     <div id="results"></div>
     <div id="pagination"></div>
@@ -544,7 +566,7 @@
         };
 
         // === STATE ===
-        let fuse, faqData = [], currentCategory = 'Alle', currentPage = 1, debounceTimer;
+        let fuse, faqData = [], currentCategory = 'Alle', currentPage = 1, debounceTimer, showObsolet = false;
         const searchBox = document.getElementById('searchBox');
         const versionSelect = document.getElementById('versionSelect');
         const sortSelect = document.getElementById('sortSelect');
@@ -749,6 +771,13 @@
             }
             if (currentCategory !== 'Alle') results = results.filter(r => r.item.Kategorie === currentCategory);
             if (selectedVersion !== 'all') results = results.filter(r => r.item.Version === selectedVersion);
+
+            // Obsolet filter
+            showObsolet = document.getElementById('showObsolet').checked;
+            const obsoletInResults = results.filter(r => (r.item.Status || '').toLowerCase() === 'obsolet').length;
+            document.getElementById('obsoletCount').textContent = obsoletInResults;
+            if (!showObsolet) results = results.filter(r => (r.item.Status || '').toLowerCase() !== 'obsolet');
+
             results = sortResults(results);
 
             const total = results.length;
@@ -778,7 +807,10 @@
                 const conf = getConfidenceLevel(d.Confidence);
                 const isOpen = query ? 'active' : '';
                 const isShow = query ? 'show' : '';
-                const statusTag = d.Status === 'überarbeitet'
+                const isObsolet = (d.Status || '').toLowerCase() === 'obsolet';
+                const statusTag = isObsolet
+                    ? '<span class="tag tag-obsolet" title="Diese Info ist möglicherweise veraltet">⚠️ Veraltet</span>'
+                    : d.Status === 'überarbeitet'
                     ? '<span class="tag tag-status-updated" title="Diese Antwort wurde kürzlich verbessert">✨ Verbessert</span>'
                     : '';
                 const answers = parseInt(d.Antworten) || 1;
@@ -793,7 +825,7 @@
                 const autor = escapeHtml(d['Antwort-Autor'] || 'Community');
 
                 const el = document.createElement('div');
-                el.className = 'faq-item';
+                el.className = 'faq-item' + (isObsolet ? ' obsolet' : '');
                 el.id = slug;
                 el.innerHTML = `
                     <div class="faq-header ${isOpen}" onclick="toggleFaq(this)">

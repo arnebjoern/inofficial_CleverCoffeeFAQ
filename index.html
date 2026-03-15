@@ -40,34 +40,41 @@
             font-size: 2.5rem;
             font-weight: 800;
             letter-spacing: -0.03em;
-            margin-bottom: 40px; 
+            margin-bottom: 30px; 
             color: #111827;
             text-shadow: 0 2px 4px rgba(255,255,255,0.5);
         }
         
-        .search-wrapper { position: relative; margin-bottom: 24px; }
+        .controls-row { display: flex; gap: 15px; margin-bottom: 24px; }
+        .search-wrapper { position: relative; flex-grow: 1; }
 
         #searchBox { 
-            width: 100%; 
-            padding: 20px 20px 20px 55px; 
-            font-size: 18px; 
-            background: var(--surface);
-            border: 2px solid transparent; 
-            border-radius: var(--radius-lg); 
-            box-shadow: var(--shadow-md);
-            box-sizing: border-box; 
-            outline: none; 
-            transition: all 0.3s ease;
+            width: 100%; padding: 20px 20px 20px 55px; font-size: 18px; 
+            background: var(--surface); border: 2px solid transparent; 
+            border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
+            box-sizing: border-box; outline: none; transition: all 0.3s ease;
             color: var(--text-main);
         }
-        
         #searchBox::placeholder { color: #9ca3af; }
         #searchBox:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15), var(--shadow-md); }
-
         .search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; color: #9ca3af; pointer-events: none; }
         
+        /* Versions-Filter Dropdown */
+        .version-wrapper { position: relative; min-width: 200px; }
+        #versionSelect {
+            width: 100%; height: 100%; padding: 0 40px 0 20px; font-size: 16px; font-weight: 600;
+            background: var(--surface); color: var(--text-main); border: 2px solid transparent;
+            border-radius: var(--radius-lg); box-shadow: var(--shadow-md); appearance: none;
+            cursor: pointer; outline: none; transition: all 0.2s;
+        }
+        #versionSelect:focus { border-color: var(--primary); }
+        #versionSelect:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+        .version-wrapper::after {
+            content: "▼"; font-size: 12px; color: #6b7280; position: absolute; right: 20px;
+            top: 50%; transform: translateY(-50%); pointer-events: none;
+        }
+
         #categories { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 40px; justify-content: center; }
-        
         .filter-btn { background: var(--surface); border: 1px solid var(--border); padding: 10px 20px; border-radius: var(--radius-full); cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-muted); transition: all 0.2s ease; box-shadow: var(--shadow-sm); }
         .filter-btn:hover { border-color: #d1d5db; color: var(--text-main); transform: translateY(-1px); }
         .filter-btn.active { background: var(--primary); border-color: var(--primary); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
@@ -75,28 +82,21 @@
         .faq-item { background: var(--surface); border-radius: var(--radius-lg); margin-bottom: 16px; border: 1px solid var(--border); transition: all 0.3s ease; box-shadow: var(--shadow-sm); scroll-margin-top: 100px; }
         .faq-item:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); border-color: #d1d5db; }
         .faq-item.target-highlight { animation: pulse-border 2s ease-out; }
-        
-        @keyframes pulse-border {
-            0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); border-color: var(--primary); }
-            70% { box-shadow: 0 0 0 15px rgba(79, 70, 229, 0); border-color: var(--border); }
-            100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
-        }
+        @keyframes pulse-border { 0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); border-color: var(--primary); } 70% { box-shadow: 0 0 0 15px rgba(79, 70, 229, 0); border-color: var(--border); } 100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); } }
 
         .faq-header { padding: 20px 24px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: var(--radius-lg); }
         .faq-header-content { display: flex; flex-direction: column; gap: 8px; padding-right: 20px; flex-grow: 1; }
-        .faq-meta { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .faq-meta { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
         
-        .tag { background: #f3f4f6; color: #4b5563; padding: 3px 8px; border-radius: 6px; font-size: 10px; display: inline-flex; align-items: center; gap: 4px; }
-        .tag-version { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+        .channel-tag { background: #f3f4f6; color: #4b5563; padding: 2px 8px; border-radius: 4px; font-size: 10px; }
+        .version-tag { background: #e0e7ff; color: #4338ca; padding: 2px 8px; border-radius: 4px; font-size: 10px; border: 1px solid #c7d2fe; }
 
         .faq-question { font-weight: 700; font-size: 1.1rem; margin: 0; color: var(--text-main); line-height: 1.4; }
-
         .faq-actions { display: flex; align-items: center; gap: 15px; }
         .copy-btn { background: transparent; border: none; color: #9ca3af; cursor: pointer; padding: 8px; border-radius: 8px; transition: all 0.2s; opacity: 0; display: flex; align-items: center; justify-content: center; }
         .faq-header:hover .copy-btn { opacity: 1; }
         .copy-btn:hover { background: #f3f4f6; color: var(--primary); }
         .copy-btn svg { width: 18px; height: 18px; }
-
         .faq-arrow { width: 10px; height: 10px; border-right: 2.5px solid #9ca3af; border-bottom: 2.5px solid #9ca3af; transform: rotate(45deg); transition: transform 0.3s ease; margin-right: 5px; }
         .faq-header.active .faq-arrow { transform: rotate(-135deg); }
         
@@ -112,25 +112,34 @@
 
         mark { background-color: var(--highlight); padding: 0.1em 0.3em; border-radius: 4px; color: #000; font-weight: 500; }
         .no-results { text-align: center; padding: 60px 20px; color: var(--text-muted); background: var(--surface); border-radius: var(--radius-lg); border: 2px dashed #d1d5db; font-weight: 500; }
-        
         #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #111827; color: white; padding: 12px 24px; border-radius: var(--radius-full); font-weight: 600; font-size: 14px; opacity: 0; transition: all 0.3s ease; z-index: 1000; }
         #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-        /* Lade-Indikator */
-        #loader { text-align: center; padding: 40px; color: var(--text-muted); font-weight: 500; }
+        @media (max-width: 768px) { 
+            .controls-row { flex-direction: column; } 
+            .version-wrapper { width: 100%; height: 50px; }
+            .copy-btn { opacity: 1; } 
+        }
     </style>
 </head>
 <body>
 
     <h1>☕ CleverCoffee FAQ</h1>
     
-    <div class="search-wrapper">
-        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-        <input type="text" id="searchBox" placeholder="Suche nach Begriffen, Personen oder Kanälen..." disabled>
+    <div class="controls-row">
+        <div class="search-wrapper">
+            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <input type="text" id="searchBox" placeholder="Suche nach Begriffen, Personen oder Kanälen...">
+        </div>
+        
+        <div class="version-wrapper">
+            <select id="versionSelect" onchange="updateResults()">
+                <option value="all">Lädt Versionen...</option>
+            </select>
+        </div>
     </div>
     
     <div id="categories"></div>
-    <div id="loader">Lade Daten & Versions-Historie... 🔄</div>
     <div id="results"></div>
 
     <div id="toast">✅ Link kopiert!</div>
@@ -138,88 +147,92 @@
     <script>
         const fuseOptions = {
             keys: ['Frage', 'Antwort', 'Kategorie', 'Fragesteller', 'Antwort-Autor', 'Kanal'],
-            threshold: 0.3, 
-            ignoreLocation: true,
-            minMatchCharLength: 2,
-            includeMatches: true
+            threshold: 0.3, ignoreLocation: true, minMatchCharLength: 2, includeMatches: true
         };
 
         const searchBox = document.getElementById('searchBox');
+        const versionSelect = document.getElementById('versionSelect');
         const resultsContainer = document.getElementById('results');
         const categoriesContainer = document.getElementById('categories');
-        const loader = document.getElementById('loader');
         const toast = document.getElementById('toast');
         
         let fuse;
         let faqData = [];
-        let githubReleases = [];
         let currentCategory = 'Alle';
         let debounceTimer;
         let isFirstLoad = true;
 
-        // Keywords, um veraltete Fragen automatisch rauszufiltern
-        const obsoleteKeywords = ['gefixt', 'fixed in', 'pr #', 'behoben in', 'obsolete', 'bugfix'];
-
-        function isObsolete(text) {
-            const lowerText = text.toLowerCase();
-            return obsoleteKeywords.some(keyword => lowerText.includes(keyword));
-        }
-
-        // Parallel beide Datenquellen abrufen (FAQ-JSON und GitHub API)
-        Promise.all([
-            fetch('faq-daten.json').then(res => res.json()),
-            fetch('https://api.github.com/repos/rancilio-pid/clevercoffee/releases')
-                .then(res => res.json())
-                .catch(err => {
-                    console.warn("GitHub API Limit erreicht oder Offline. Versionen werden ignoriert.");
-                    return []; 
-                })
-        ])
-        .then(([faqJson, releasesData]) => {
-            // GitHub Releases nach Datum sortieren (Neueste zuerst)
-            if (Array.isArray(releasesData)) {
-                githubReleases = releasesData.map(r => ({
-                    version: r.tag_name,
-                    date: new Date(r.published_at)
-                })).sort((a, b) => b.date - a.date);
-            }
-
-            // FAQ-Daten filtern und aufbereiten
-            faqData = faqJson.filter(item => {
-                // 1. Veraltete Bugs direkt aus der Liste werfen
-                if (isObsolete(item.Antwort)) return false;
-                return true;
-            });
-
-            // Suchmaschine & UI starten
-            loader.style.display = 'none';
-            searchBox.disabled = false;
-            fuse = new Fuse(faqData, fuseOptions);
-            renderCategoryButtons();
-            updateResults();
-        })
-        .catch(error => {
-            loader.style.display = 'none';
-            resultsContainer.innerHTML = '<div class="no-results" style="color:#ef4444; border-color:#fca5a5;">Fehler beim Laden der FAQ-Daten.</div>';
-        });
-
-        // Berechnet die zum Zeitpunkt der Frage aktuelle Version
-        function getVersionForDate(dateString) {
-            if (githubReleases.length === 0 || !dateString) return null;
-            
-            // "2023-12-23 16:18:27" für Safari/Firefox kompatibel machen
-            const faqDate = new Date(dateString.replace(' ', 'T'));
-            
-            // Finde das erste Release, das VOR der Frage veröffentlicht wurde
-            const activeRelease = githubReleases.find(r => r.date <= faqDate);
-            return activeRelease ? activeRelease.version : 'Veraltet';
-        }
-
         function generateSlug(text) {
             return text.toString().toLowerCase()
                 .replace(/[äöüß]/g, m => ({'ä':'ae','ö':'oe','ü':'ue','ß':'ss'})[m])
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/(^-|-$)+/g, '');
+                .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        }
+
+        // HIER PASSIERT DIE MAGIE: Versionen automatisch auslesen!
+        function extractVersions(text) {
+            if (!text) return [];
+            // Erkennt Muster wie "V3", "Version 2.0", "Release 3.3.0", "Beta 3"
+            const regex = /\b(?:v|version|release|beta)\.?\s*([0-9]+(?:\.[0-9]+)*)\b/gi;
+            let versions = [];
+            let match;
+            while ((match = regex.exec(text)) !== null) {
+                versions.push(match[1]);
+            }
+            return versions;
+        }
+
+        fetch('faq-daten.json')
+            .then(response => response.json())
+            .then(data => {
+                // Daten aufbereiten und Versionen auslesen
+                faqData = data.map(item => {
+                    const textToScan = ((item.Frage || '') + " " + (item.Antwort || '')).toLowerCase();
+                    const extracted = extractVersions(textToScan);
+                    return {
+                        ...item,
+                        extractedVersions: [...new Set(extracted)] // Doppelte entfernen
+                    };
+                });
+                
+                fuse = new Fuse(faqData, fuseOptions);
+                initVersionFilter(); 
+                renderCategoryButtons();
+                updateResults(); 
+            })
+            .catch(error => {
+                resultsContainer.innerHTML = '<div class="no-results" style="color:#ef4444;">Fehler beim Laden der FAQ-Daten. Stelle sicher, dass die "faq-daten.json" existiert.</div>';
+            });
+
+        function initVersionFilter() {
+            let allVersions = new Set();
+            faqData.forEach(item => {
+                item.extractedVersions.forEach(v => allVersions.add(v));
+            });
+            
+            let versions = Array.from(allVersions);
+            // Versionen numerisch sortieren (Höchste zuerst)
+            versions.sort((a, b) => {
+                const pa = a.split('.').map(Number);
+                const pb = b.split('.').map(Number);
+                for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+                    let na = pa[i] || 0;
+                    let nb = pb[i] || 0;
+                    if (na > nb) return -1;
+                    if (na < nb) return 1;
+                }
+                return 0;
+            });
+
+            let optionsHtml = '';
+            if(versions.length > 0) {
+                // Die aktuellste Version als Standard ganz oben
+                optionsHtml += `<option value="${versions[0]}">Aktuellste (Ver. ${versions[0]})</option>`;
+                versions.slice(1).forEach(v => {
+                    optionsHtml += `<option value="${v}">Version ${v}</option>`;
+                });
+            }
+            optionsHtml += `<option value="all">Alle Versionen anzeigen</option>`;
+            versionSelect.innerHTML = optionsHtml;
         }
 
         function renderCategoryButtons() {
@@ -240,9 +253,7 @@
             if (!matches) return text;
             const match = matches.find(m => m.key === keyName);
             if (!match) return text;
-
-            let result = '';
-            let lastEnd = 0;
+            let result = ''; let lastEnd = 0;
             match.indices.forEach(([start, end]) => {
                 result += text.substring(lastEnd, start);
                 result += `<mark>${text.substring(start, end + 1)}</mark>`;
@@ -276,27 +287,47 @@
                     return `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}, ${timeParts[0]}:${timeParts[1]} Uhr`;
                 }
             }
-            return datumString; 
+            return datumString;
         }
 
         function updateResults() {
             const query = searchBox.value.trim();
+            const selectedVersion = versionSelect.value;
             let resultsToRender = [];
 
+            // 1. Text-Suche
             if (query === '') {
                 resultsToRender = faqData.map(item => ({ item: item, matches: [] }));
             } else {
                 resultsToRender = fuse.search(query);
             }
 
+            // 2. Kategorie-Filter
             if (currentCategory !== 'Alle') {
                 resultsToRender = resultsToRender.filter(res => res.item.Kategorie === currentCategory);
+            }
+
+            // 3. Versions-Filter
+            if (selectedVersion !== 'all') {
+                resultsToRender = resultsToRender.filter(res => {
+                    const itemVersions = res.item.extractedVersions;
+                    
+                    // Allgemeine Fragen (die keine Version nennen) immer anzeigen
+                    if (itemVersions.length === 0) return true;
+                    
+                    // Smart Match: Z.B. Filter ist "3.3.0" -> Text sagt "V3" -> Wird angezeigt!
+                    return itemVersions.some(v => 
+                        v === selectedVersion || 
+                        selectedVersion.startsWith(v + '.') || 
+                        v.startsWith(selectedVersion + '.')
+                    );
+                });
             }
 
             resultsContainer.innerHTML = ''; 
             
             if(resultsToRender.length === 0) {
-                resultsContainer.innerHTML = '<div class="no-results">Keine passenden Antworten gefunden. Versuch es mit einem anderen Suchbegriff.</div>';
+                resultsContainer.innerHTML = '<div class="no-results">Keine passenden Antworten für diese Kriterien gefunden. Versuch es mit einer anderen Version oder Suchbegriff.</div>';
                 return;
             }
 
@@ -313,9 +344,8 @@
                 const fragesteller = data.Fragesteller ? highlightText(data.Fragesteller, matches, 'Fragesteller') : 'Anonym';
                 const autor = data['Antwort-Autor'] ? highlightText(data['Antwort-Autor'], matches, 'Antwort-Autor') : 'Community';
                 
-                // Hole die GitHub Version
-                const version = getVersionForDate(data.Datum);
-                const versionHtml = version ? `<span class="tag tag-version" title="Aktuelle Version zum Zeitpunkt der Frage">📦 ${version}</span>` : '';
+                // Neue kleine Version-Tags für die UI bauen
+                const versionTagsHtml = data.extractedVersions.map(v => `<span class="version-tag">Ver. ${v}</span>`).join('');
 
                 const faqElement = document.createElement('div');
                 faqElement.className = 'faq-item';
@@ -329,8 +359,8 @@
                         <div class="faq-header-content">
                             <span class="faq-meta">
                                 ${data.Kategorie}
-                                <span class="tag">#${kanal}</span>
-                                ${versionHtml}
+                                <span class="channel-tag">#${kanal}</span>
+                                ${versionTagsHtml}
                             </span>
                             <h2 class="faq-question">${highlightedQuestion}</h2>
                         </div>
@@ -382,9 +412,7 @@
 
         searchBox.addEventListener('input', () => {
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                updateResults();
-            }, 150); 
+            debounceTimer = setTimeout(() => updateResults(), 150); 
         });
     </script>
 </body>

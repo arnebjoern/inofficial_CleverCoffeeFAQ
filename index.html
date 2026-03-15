@@ -3,339 +3,813 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CleverCoffee FAQ Suche</title>
+    <title>CleverCoffee FAQ – Community-Wissen zur Espresso-PID</title>
+    <meta name="description" content="Durchsuchbare FAQ-Sammlung für CleverCoffee – das Open-Source PID-System für Espressomaschinen. Anleitungen, Troubleshooting und Community-Tipps.">
+    <meta name="keywords" content="CleverCoffee, PID, Espresso, Rancilio, FAQ, ESP32, Espressomaschine">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
-    
+
     <style>
-        /* Modernes, App-ähnliches Design */
         :root {
-            --primary: #4f46e5; 
-            --primary-hover: #4338ca;
-            --bg-gradient: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-glow: rgba(99, 102, 241, 0.15);
+            --bg: #f8fafc;
+            --bg-gradient: linear-gradient(160deg, #f1f5f9 0%, #e2e8f0 100%);
             --surface: #ffffff;
-            --text-main: #111827;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
+            --surface-hover: #fafbfc;
+            --text-main: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --border-hover: #cbd5e1;
             --highlight: #fef08a;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --radius: 12px;
             --radius-lg: 16px;
             --radius-full: 9999px;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-hover: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+            --shadow-lg: 0 12px 32px rgba(0,0,0,0.08);
+            --shadow-hover: 0 16px 40px rgba(0,0,0,0.1);
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        body { 
-            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            max-width: 850px; 
-            margin: 0 auto; 
-            padding: 60px 20px; 
-            background: var(--bg-gradient); 
-            color: var(--text-main); 
+        [data-theme="dark"] {
+            --primary: #818cf8;
+            --primary-hover: #6366f1;
+            --primary-glow: rgba(129, 140, 248, 0.15);
+            --bg: #0f172a;
+            --bg-gradient: linear-gradient(160deg, #0f172a 0%, #1e293b 100%);
+            --surface: #1e293b;
+            --surface-hover: #253449;
+            --text-main: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #334155;
+            --border-hover: #475569;
+            --highlight: #854d0e;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+            --shadow-lg: 0 12px 32px rgba(0,0,0,0.4);
+            --shadow-hover: 0 16px 40px rgba(0,0,0,0.5);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+            background: var(--bg-gradient);
+            color: var(--text-main);
             line-height: 1.6;
             min-height: 100vh;
+            transition: background var(--transition), color var(--transition);
         }
 
-        h1 { 
-            text-align: center; 
-            font-size: 2.5rem;
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            position: relative;
+        }
+        .header h1 {
+            font-size: 2.2rem;
             font-weight: 800;
             letter-spacing: -0.03em;
-            margin-bottom: 30px; 
-            color: #111827;
-            text-shadow: 0 2px 4px rgba(255,255,255,0.5);
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, var(--primary) 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        
-        .controls-row { display: flex; gap: 15px; margin-bottom: 24px; }
-        .search-wrapper { position: relative; flex-grow: 1; }
+        .header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            width: 42px;
+            height: 42px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition);
+        }
+        .theme-toggle:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+            border-color: var(--border-hover);
+        }
 
-        #searchBox { 
-            width: 100%; padding: 20px 20px 20px 55px; font-size: 18px; 
-            background: var(--surface); border: 2px solid transparent; 
-            border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
-            box-sizing: border-box; outline: none; transition: all 0.3s ease;
+        /* Controls */
+        .controls-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .search-wrapper {
+            position: relative;
+            flex-grow: 1;
+        }
+        #searchBox {
+            width: 100%;
+            padding: 16px 16px 16px 50px;
+            font-size: 16px;
+            font-family: inherit;
+            background: var(--surface);
+            border: 2px solid transparent;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            outline: none;
+            transition: all var(--transition);
             color: var(--text-main);
         }
-        #searchBox::placeholder { color: #9ca3af; }
-        #searchBox:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15), var(--shadow-md); }
-        .search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; color: #9ca3af; pointer-events: none; }
-        
-        /* Versions-Filter Dropdown */
-        .version-wrapper { position: relative; min-width: 220px; }
-        #versionSelect {
-            width: 100%; height: 100%; padding: 0 40px 0 20px; font-size: 15px; font-weight: 600;
-            background: var(--surface); color: var(--text-main); border: 2px solid transparent;
-            border-radius: var(--radius-lg); box-shadow: var(--shadow-md); appearance: none;
-            cursor: pointer; outline: none; transition: all 0.2s;
+        #searchBox::placeholder { color: var(--text-muted); }
+        #searchBox:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-glow), var(--shadow-md);
         }
-        #versionSelect:focus { border-color: var(--primary); }
-        #versionSelect:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); }
-        .version-wrapper::after {
-            content: "▼"; font-size: 12px; color: #6b7280; position: absolute; right: 20px;
-            top: 50%; transform: translateY(-50%); pointer-events: none;
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: var(--text-muted);
+            pointer-events: none;
         }
 
-        #categories { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 40px; justify-content: center; }
-        .filter-btn { background: var(--surface); border: 1px solid var(--border); padding: 10px 20px; border-radius: var(--radius-full); cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-muted); transition: all 0.2s ease; box-shadow: var(--shadow-sm); }
-        .filter-btn:hover { border-color: #d1d5db; color: var(--text-main); transform: translateY(-1px); }
-        .filter-btn.active { background: var(--primary); border-color: var(--primary); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+        /* Dropdowns */
+        .select-wrapper {
+            position: relative;
+            min-width: 170px;
+        }
+        .select-wrapper select {
+            width: 100%;
+            height: 100%;
+            padding: 0 36px 0 14px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            background: var(--surface);
+            color: var(--text-main);
+            border: 2px solid transparent;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            appearance: none;
+            cursor: pointer;
+            outline: none;
+            transition: all var(--transition);
+        }
+        .select-wrapper select:focus { border-color: var(--primary); }
+        .select-wrapper select:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+        .select-wrapper::after {
+            content: "▾";
+            font-size: 14px;
+            color: var(--text-muted);
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
 
-        .faq-item { background: var(--surface); border-radius: var(--radius-lg); margin-bottom: 16px; border: 1px solid var(--border); transition: all 0.3s ease; box-shadow: var(--shadow-sm); scroll-margin-top: 100px; }
-        .faq-item:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); border-color: #d1d5db; }
+        /* Stats bar */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding: 0 4px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .stats-bar strong { color: var(--text-secondary); }
+
+        /* Category buttons */
+        #categories {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+            justify-content: center;
+        }
+        .filter-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 8px 18px;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            color: var(--text-muted);
+            transition: all var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        .filter-btn:hover {
+            border-color: var(--border-hover);
+            color: var(--text-main);
+            transform: translateY(-1px);
+        }
+        .filter-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        /* FAQ items */
+        .faq-item {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            transition: all var(--transition);
+            box-shadow: var(--shadow-sm);
+            scroll-margin-top: 80px;
+        }
+        .faq-item:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-1px);
+            border-color: var(--border-hover);
+        }
         .faq-item.target-highlight { animation: pulse-border 2s ease-out; }
-        @keyframes pulse-border { 0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); border-color: var(--primary); } 70% { box-shadow: 0 0 0 15px rgba(79, 70, 229, 0); border-color: var(--border); } 100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); } }
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 var(--primary-glow); border-color: var(--primary); }
+            70% { box-shadow: 0 0 0 12px transparent; }
+            100% { box-shadow: var(--shadow-sm); }
+        }
 
-        .faq-header { padding: 20px 24px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: var(--radius-lg); }
-        .faq-header-content { display: flex; flex-direction: column; gap: 8px; padding-right: 20px; flex-grow: 1; }
-        .faq-meta { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
-        
-        .channel-tag { background: #f3f4f6; color: #4b5563; padding: 2px 8px; border-radius: 4px; font-size: 10px; }
-        .version-tag { background: #e0e7ff; color: #4338ca; padding: 2px 8px; border-radius: 4px; font-size: 10px; border: 1px solid #c7d2fe; white-space: nowrap; }
+        .faq-header {
+            padding: 18px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: var(--radius-lg);
+            transition: background var(--transition);
+        }
+        .faq-header:hover { background: var(--surface-hover); }
+        .faq-header-content {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 16px;
+            flex-grow: 1;
+        }
+        .faq-meta {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .faq-meta .cat-label { color: var(--primary); }
 
-        .faq-question { font-weight: 700; font-size: 1.1rem; margin: 0; color: var(--text-main); line-height: 1.4; }
-        .faq-actions { display: flex; align-items: center; gap: 15px; }
-        .copy-btn { background: transparent; border: none; color: #9ca3af; cursor: pointer; padding: 8px; border-radius: 8px; transition: all 0.2s; opacity: 0; display: flex; align-items: center; justify-content: center; }
-        .faq-header:hover .copy-btn { opacity: 1; }
-        .copy-btn:hover { background: #f3f4f6; color: var(--primary); }
-        .copy-btn svg { width: 18px; height: 18px; }
-        .faq-arrow { width: 10px; height: 10px; border-right: 2.5px solid #9ca3af; border-bottom: 2.5px solid #9ca3af; transform: rotate(45deg); transition: transform 0.3s ease; margin-right: 5px; }
+        .tag {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+        .tag-channel { background: var(--surface-hover); color: var(--text-muted); border-color: var(--border); }
+        .tag-version { background: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
+        [data-theme="dark"] .tag-version { background: #312e81; color: #a5b4fc; border-color: #4338ca; }
+        .tag-status-updated { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+        [data-theme="dark"] .tag-status-updated { background: #78350f; color: #fcd34d; border-color: #b45309; }
+
+        .confidence-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 2px;
+            vertical-align: middle;
+        }
+        .conf-high { background: var(--success); box-shadow: 0 0 4px rgba(34,197,94,0.4); }
+        .conf-mid { background: var(--warning); box-shadow: 0 0 4px rgba(245,158,11,0.4); }
+        .conf-low { background: var(--danger); box-shadow: 0 0 4px rgba(239,68,68,0.4); }
+
+        .faq-question {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--text-main);
+            line-height: 1.4;
+        }
+        .faq-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 8px;
+            transition: all var(--transition);
+            opacity: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .faq-header:hover .icon-btn { opacity: 1; }
+        .icon-btn:hover { background: var(--surface-hover); color: var(--primary); }
+        .icon-btn svg { width: 16px; height: 16px; }
+        .faq-arrow {
+            width: 8px;
+            height: 8px;
+            border-right: 2px solid var(--text-muted);
+            border-bottom: 2px solid var(--text-muted);
+            transform: rotate(45deg);
+            transition: transform 0.3s ease;
+        }
         .faq-header.active .faq-arrow { transform: rotate(-135deg); }
-        
-        .faq-answer-wrapper { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s ease; }
+
+        .faq-answer-wrapper {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.3s ease;
+        }
         .faq-answer-wrapper.show { grid-template-rows: 1fr; }
         .faq-answer-inner { overflow: hidden; }
-        .faq-answer { padding: 0 24px 24px 24px; line-height: 1.7; color: #4b5563; font-size: 16px; }
-        
-        .faq-details { margin-top: 20px; padding-top: 15px; border-top: 1px dashed var(--border); display: flex; flex-wrap: wrap; gap: 10px; font-size: 13px; }
-        .detail-item { background: #f9fafb; border: 1px solid var(--border); color: var(--text-muted); padding: 5px 12px; border-radius: 6px; display: flex; align-items: center; gap: 6px; }
-        .detail-label { font-weight: 600; color: #374151; }
+        .faq-answer {
+            padding: 0 20px 20px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+        .faq-answer a {
+            color: var(--primary);
+            text-decoration: none;
+            border-bottom: 1px solid var(--primary-glow);
+            transition: border-color var(--transition);
+        }
+        .faq-answer a:hover { border-color: var(--primary); }
+
+        .faq-details {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--border);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 12px;
+        }
+        .detail-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .detail-label { font-weight: 600; color: var(--text-secondary); }
         .detail-value { font-weight: 600; color: var(--text-main); }
 
-        mark { background-color: var(--highlight); padding: 0.1em 0.3em; border-radius: 4px; color: #000; font-weight: 500; }
-        .no-results { text-align: center; padding: 60px 20px; color: var(--text-muted); background: var(--surface); border-radius: var(--radius-lg); border: 2px dashed #d1d5db; font-weight: 500; }
-        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #111827; color: white; padding: 12px 24px; border-radius: var(--radius-full); font-weight: 600; font-size: 14px; opacity: 0; transition: all 0.3s ease; z-index: 1000; }
+        mark {
+            background-color: var(--highlight);
+            padding: 0.05em 0.2em;
+            border-radius: 3px;
+            color: #000;
+        }
+        [data-theme="dark"] mark { color: #fef08a; }
+
+        .no-results {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-muted);
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            border: 2px dashed var(--border);
+            font-weight: 500;
+        }
+        .no-results .emoji { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+            padding: 16px;
+        }
+        .page-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            color: var(--text-secondary);
+            transition: all var(--transition);
+        }
+        .page-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+        .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .page-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+        .page-info { font-size: 13px; color: var(--text-muted); font-weight: 500; padding: 0 8px; }
+
+        /* Toast */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--text-main);
+            color: var(--bg);
+            padding: 10px 20px;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            font-size: 13px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+        }
         #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-        @media (max-width: 768px) { 
-            .controls-row { flex-direction: column; } 
-            .version-wrapper { width: 100%; height: 50px; }
-            .copy-btn { opacity: 1; } 
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .footer a { color: var(--primary); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            body { padding: 24px 12px 60px; }
+            .controls-row { flex-direction: column; }
+            .select-wrapper { width: 100%; }
+            .select-wrapper select { height: 48px; }
+            .icon-btn { opacity: 1; }
+            .header h1 { font-size: 1.6rem; }
+            .theme-toggle { width: 36px; height: 36px; font-size: 1rem; }
         }
     </style>
 </head>
 <body>
 
-    <h1>☕ CleverCoffee FAQ</h1>
-    
+    <div class="header">
+        <h1>☕ CleverCoffee FAQ</h1>
+        <p>Community-Wissen für dein Espresso-PID-Projekt</p>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Dark Mode umschalten">🌙</button>
+    </div>
+
     <div class="controls-row">
         <div class="search-wrapper">
-            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            <input type="text" id="searchBox" placeholder="Suche nach Begriffen, Personen oder Kanälen...">
+            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" id="searchBox" placeholder="Suche nach Begriffen, Personen oder Kanälen…" aria-label="FAQ durchsuchen">
         </div>
-        
-        <div class="version-wrapper">
-            <select id="versionSelect" onchange="updateResults()">
-                <option value="all">Lädt Versionen...</option>
+        <div class="select-wrapper">
+            <select id="versionSelect" onchange="updateResults()" aria-label="Version filtern">
+                <option value="all">Lädt…</option>
+            </select>
+        </div>
+        <div class="select-wrapper" style="min-width:140px">
+            <select id="sortSelect" onchange="updateResults()" aria-label="Sortierung">
+                <option value="relevance">Relevanz</option>
+                <option value="date-desc">Neueste zuerst</option>
+                <option value="date-asc">Älteste zuerst</option>
+                <option value="confidence">Confidence ↓</option>
             </select>
         </div>
     </div>
-    
-    <div id="categories"></div>
-    <div id="results"></div>
 
+    <div id="categories"></div>
+    <div class="stats-bar">
+        <span id="statsText">Lade FAQs…</span>
+        <span id="statsCount"></span>
+    </div>
+    <div id="results"></div>
+    <div id="pagination"></div>
     <div id="toast">✅ Link kopiert!</div>
 
+    <footer class="footer">
+        <p>Daten aus der <a href="https://chat.clevercoffee.de" target="_blank" rel="noopener">CleverCoffee Discord Community</a> · 
+        <a href="https://github.com/rancilio-pid/clevercoffee" target="_blank" rel="noopener">GitHub Projekt</a> ·
+        Automatisch aktualisiert via n8n + Gemini AI</p>
+    </footer>
+
     <script>
+        // === CONFIG ===
+        const ITEMS_PER_PAGE = 25;
         const fuseOptions = {
-            keys: ['Frage', 'Antwort', 'Kategorie', 'Fragesteller', 'Antwort-Autor', 'Kanal'],
-            threshold: 0.3, ignoreLocation: true, minMatchCharLength: 2, includeMatches: true
+            keys: [
+                { name: 'Frage', weight: 2 },
+                { name: 'Antwort', weight: 1.5 },
+                { name: 'Kategorie', weight: 1 },
+                { name: 'Fragesteller', weight: 0.5 },
+                { name: 'Antwort-Autor', weight: 0.5 },
+                { name: 'Kanal', weight: 0.5 }
+            ],
+            threshold: 0.3,
+            ignoreLocation: true,
+            minMatchCharLength: 2,
+            includeMatches: true
         };
 
+        // === STATE ===
+        let fuse, faqData = [], currentCategory = 'Alle', currentPage = 1, debounceTimer;
         const searchBox = document.getElementById('searchBox');
         const versionSelect = document.getElementById('versionSelect');
+        const sortSelect = document.getElementById('sortSelect');
         const resultsContainer = document.getElementById('results');
         const categoriesContainer = document.getElementById('categories');
-        const toast = document.getElementById('toast');
-        
-        let fuse;
-        let faqData = [];
-        let currentCategory = 'Alle';
-        let debounceTimer;
-        let isFirstLoad = true;
+        const paginationContainer = document.getElementById('pagination');
+        const statsText = document.getElementById('statsText');
+        const statsCount = document.getElementById('statsCount');
 
-        function generateSlug(text) {
-            return text.toString().toLowerCase()
-                .replace(/[äöüß]/g, m => ({'ä':'ae','ö':'oe','ü':'ue','ß':'ss'})[m])
-                .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        // === XSS PROTECTION ===
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
         }
 
-        // --- DIE NEUE MAGIE ---
-        // Weist jedem Post anhand seines Datums eine feste Version zu
+        // === LINKIFY ===
+        function linkify(text) {
+            if (!text) return '';
+            return text.replace(
+                /(https?:\/\/[^\s<>"')\]]+)/g,
+                '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
+            );
+        }
+
+        // === VERSION FROM DATE ===
         function getVersionByDate(datumString) {
             if (!datumString) return 'Unbekannt';
-            
-            // Safes Parsing für alle Browser (ersetzt Leerzeichen durch ein T)
-            const postDate = new Date(datumString.replace(' ', 'T'));
-            
-            // CleverCoffee Release-Zeitstrahl
-            if (postDate >= new Date('2026-01-01')) return 'V4.0';
-            if (postDate >= new Date('2025-01-01')) return 'V4.0 Beta';
-            if (postDate >= new Date('2023-12-01')) return 'V3.3';
+            const d = new Date(datumString.replace(' ', 'T'));
+            if (isNaN(d)) return 'Unbekannt';
+            if (d >= new Date('2026-01-01')) return 'V4.0';
+            if (d >= new Date('2025-01-01')) return 'V4.0 Beta';
+            if (d >= new Date('2023-12-01')) return 'V3.3';
             return 'V3.0 / älter';
         }
 
+        // === SLUG ===
+        function generateSlug(text) {
+            return String(text).toLowerCase()
+                .replace(/[äöüß]/g, m => ({ 'ä':'ae','ö':'oe','ü':'ue','ß':'ss' })[m])
+                .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        }
+
+        // === CONFIDENCE ===
+        function getConfidenceLevel(val) {
+            const n = parseFloat(val);
+            if (isNaN(n)) return { cls: 'conf-mid', label: 'Mittel' };
+            if (n >= 0.7) return { cls: 'conf-high', label: 'Hoch' };
+            if (n >= 0.4) return { cls: 'conf-mid', label: 'Mittel' };
+            return { cls: 'conf-low', label: 'Niedrig' };
+        }
+
+        // === DARK MODE ===
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            document.getElementById('themeToggle').textContent = isDark ? '🌙' : '☀️';
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        }
+        (function initTheme() {
+            const saved = localStorage.getItem('theme');
+            const prefer = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            const theme = saved || prefer;
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('themeToggle').textContent = '☀️';
+            }
+        })();
+
+        // === LOAD DATA ===
         fetch('faq-daten.json')
-            .then(response => response.json())
+            .then(r => r.json())
             .then(data => {
-                // Version aus dem Datum ableiten und als neues Feld "Version" speichern
-                faqData = data.map(item => {
-                    return {
-                        ...item,
-                        Version: getVersionByDate(item.Datum)
-                    };
-                });
-                
+                faqData = data.map(item => ({
+                    ...item,
+                    Version: getVersionByDate(item.Datum),
+                    _safeQuestion: escapeHtml(item.Frage),
+                    _safeAnswer: escapeHtml(item.Antwort)
+                }));
                 fuse = new Fuse(faqData, fuseOptions);
-                initVersionFilter(); 
+                initVersionFilter();
                 renderCategoryButtons();
-                updateResults(); 
+                updateResults();
+                injectFaqSchema();
             })
-            .catch(error => {
-                resultsContainer.innerHTML = '<div class="no-results" style="color:#ef4444;">Fehler beim Laden der FAQ-Daten. Stelle sicher, dass die "faq-daten.json" existiert.</div>';
+            .catch(() => {
+                resultsContainer.innerHTML = '<div class="no-results"><span class="emoji">⚠️</span>FAQ-Daten konnten nicht geladen werden.</div>';
             });
 
-        function initVersionFilter() {
-            // Wir definieren die chronologisch richtige Reihenfolge manuell, damit sie im Dropdown immer stimmt
-            const correctOrder = ['V4.0', 'V4.0 Beta', 'V3.3', 'V3.0 / älter'];
-            
-            // Nur die Versionen ins Dropdown packen, für die wir auch Posts haben
-            const versions = correctOrder.filter(v => faqData.some(item => item.Version === v));
+        // === FAQ SCHEMA (SEO) ===
+        function injectFaqSchema() {
+            const items = faqData.slice(0, 50).map(faq => ({
+                "@type": "Question",
+                "name": faq.Frage,
+                "acceptedAnswer": { "@type": "Answer", "text": faq.Antwort }
+            }));
+            const schema = { "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": items };
+            const script = document.createElement('script');
+            script.type = 'application/ld+json';
+            script.textContent = JSON.stringify(schema);
+            document.head.appendChild(script);
+        }
 
-            let optionsHtml = '';
-            if(versions.length > 0) {
-                optionsHtml += `<option value="${versions[0]}">Aktuellste (${versions[0]})</option>`;
-                versions.slice(1).forEach(v => {
-                    optionsHtml += `<option value="${v}">${v}</option>`;
-                });
+        // === FILTERS ===
+        function initVersionFilter() {
+            const order = ['V4.0', 'V4.0 Beta', 'V3.3', 'V3.0 / älter'];
+            const versions = order.filter(v => faqData.some(i => i.Version === v));
+            let html = '';
+            if (versions.length > 0) {
+                html += `<option value="${versions[0]}">Aktuell (${versions[0]})</option>`;
+                versions.slice(1).forEach(v => { html += `<option value="${v}">${v}</option>`; });
             }
-            optionsHtml += `<option value="all">Alle Versionen anzeigen</option>`;
-            versionSelect.innerHTML = optionsHtml;
+            html += `<option value="all">Alle Versionen</option>`;
+            versionSelect.innerHTML = html;
         }
 
         function renderCategoryButtons() {
-            const categories = ['Alle', ...new Set(faqData.map(item => item.Kategorie).filter(Boolean))];
-            categoriesContainer.innerHTML = categories.map(cat => 
-                `<button class="filter-btn ${cat === currentCategory ? 'active' : ''}" onclick="setCategory('${cat}')">${cat}</button>`
+            const cats = ['Alle', ...new Set(faqData.map(i => i.Kategorie).filter(Boolean).sort())];
+            categoriesContainer.innerHTML = cats.map(c =>
+                `<button class="filter-btn ${c === currentCategory ? 'active' : ''}" onclick="setCategory('${escapeHtml(c)}')">${escapeHtml(c)}</button>`
             ).join('');
         }
 
-        function setCategory(cat) {
-            currentCategory = cat;
-            renderCategoryButtons(); 
-            updateResults(); 
-        }
+        function setCategory(cat) { currentCategory = cat; currentPage = 1; renderCategoryButtons(); updateResults(); }
 
-        function highlightText(text, matches, keyName) {
-            if (!text) return '';
-            if (!matches) return text;
+        // === HIGHLIGHT ===
+        function highlightText(safeText, matches, keyName) {
+            if (!safeText || !matches) return safeText || '';
             const match = matches.find(m => m.key === keyName);
-            if (!match) return text;
-            let result = ''; let lastEnd = 0;
+            if (!match) return safeText;
+            let result = '', lastEnd = 0;
             match.indices.forEach(([start, end]) => {
-                result += text.substring(lastEnd, start);
-                result += `<mark>${text.substring(start, end + 1)}</mark>`;
+                result += safeText.substring(lastEnd, start);
+                result += `<mark>${safeText.substring(start, end + 1)}</mark>`;
                 lastEnd = end + 1;
             });
-            result += text.substring(lastEnd);
+            result += safeText.substring(lastEnd);
             return result;
         }
 
-        function toggleFaq(headerElement) {
-            headerElement.classList.toggle('active');
-            headerElement.nextElementSibling.classList.toggle('show');
+        // === INTERACTIONS ===
+        function toggleFaq(el) {
+            el.classList.toggle('active');
+            el.nextElementSibling.classList.toggle('show');
         }
-
         function copyLink(event, slug) {
-            event.stopPropagation(); 
-            const url = window.location.origin + window.location.pathname + '#' + slug;
+            event.stopPropagation();
+            const url = location.origin + location.pathname + '#' + slug;
             navigator.clipboard.writeText(url).then(() => {
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 2500);
+                const t = document.getElementById('toast');
+                t.classList.add('show');
+                setTimeout(() => t.classList.remove('show'), 2000);
             });
         }
 
-        function formatDateTime(datumString) {
-            if (!datumString) return 'Unbekannt';
-            const parts = datumString.split(' ');
-            if (parts.length === 2) {
-                const dateParts = parts[0].split('-');
-                const timeParts = parts[1].split(':');
-                if (dateParts.length === 3 && timeParts.length >= 2) {
-                    return `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}, ${timeParts[0]}:${timeParts[1]} Uhr`;
-                }
+        // === FORMAT DATE ===
+        function formatDate(s) {
+            if (!s) return 'Unbekannt';
+            const [date, time] = s.split(' ');
+            if (!date) return s;
+            const [y, m, d] = date.split('-');
+            if (y && m && d) {
+                const timePart = time ? `, ${time.substring(0, 5)} Uhr` : '';
+                return `${d}.${m}.${y}${timePart}`;
             }
-            return datumString;
+            return s;
         }
 
+        // === SORT ===
+        function sortResults(results) {
+            const sortBy = sortSelect.value;
+            if (sortBy === 'relevance' && searchBox.value.trim()) return results;
+            const arr = [...results];
+            switch (sortBy) {
+                case 'date-desc':
+                    arr.sort((a, b) => (b.item.Datum || '').localeCompare(a.item.Datum || ''));
+                    break;
+                case 'date-asc':
+                    arr.sort((a, b) => (a.item.Datum || '').localeCompare(b.item.Datum || ''));
+                    break;
+                case 'confidence':
+                    arr.sort((a, b) => parseFloat(b.item.Confidence || 0) - parseFloat(a.item.Confidence || 0));
+                    break;
+                default:
+                    arr.sort((a, b) => (b.item.Datum || '').localeCompare(a.item.Datum || ''));
+            }
+            return arr;
+        }
+
+        // === MAIN RENDER ===
         function updateResults() {
             const query = searchBox.value.trim();
             const selectedVersion = versionSelect.value;
-            let resultsToRender = [];
+            let results;
 
-            if (query === '') {
-                resultsToRender = faqData.map(item => ({ item: item, matches: [] }));
+            if (query) {
+                results = fuse.search(query);
             } else {
-                resultsToRender = fuse.search(query);
+                results = faqData.map(item => ({ item, matches: [] }));
             }
+            if (currentCategory !== 'Alle') results = results.filter(r => r.item.Kategorie === currentCategory);
+            if (selectedVersion !== 'all') results = results.filter(r => r.item.Version === selectedVersion);
+            results = sortResults(results);
 
-            if (currentCategory !== 'Alle') {
-                resultsToRender = resultsToRender.filter(res => res.item.Kategorie === currentCategory);
-            }
+            const total = results.length;
+            const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
+            if (currentPage > totalPages) currentPage = totalPages;
+            const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+            const pageResults = results.slice(startIdx, startIdx + ITEMS_PER_PAGE);
 
-            // Exakter Filter nach der zugewiesenen Version aus dem Datum
-            if (selectedVersion !== 'all') {
-                resultsToRender = resultsToRender.filter(res => res.item.Version === selectedVersion);
-            }
+            statsText.innerHTML = query
+                ? `<strong>${total}</strong> Treffer für „${escapeHtml(query)}"`
+                : `<strong>${total}</strong> FAQs`;
+            statsCount.textContent = selectedVersion !== 'all' ? selectedVersion : '';
 
-            resultsContainer.innerHTML = ''; 
-            
-            if(resultsToRender.length === 0) {
-                resultsContainer.innerHTML = '<div class="no-results">Keine passenden Antworten für diese Kriterien gefunden. Versuch es mit einer anderen Version.</div>';
+            resultsContainer.innerHTML = '';
+
+            if (total === 0) {
+                resultsContainer.innerHTML = '<div class="no-results"><span class="emoji">🔍</span>Keine passenden Antworten gefunden. Versuch einen anderen Suchbegriff oder ändere die Filter.</div>';
+                paginationContainer.innerHTML = '';
                 return;
             }
 
-            resultsToRender.forEach(res => {
-                const data = res.item;
-                const matches = res.matches;
-                const slug = generateSlug(data.Frage); 
-                
-                const highlightedQuestion = query ? highlightText(data.Frage, matches, 'Frage') : data.Frage;
-                const highlightedAnswer = query ? highlightText(data.Antwort, matches, 'Antwort') : data.Antwort;
-                
-                const datumUhrzeit = formatDateTime(data.Datum);
-                const kanal = data.Kanal ? highlightText(data.Kanal, matches, 'Kanal') : 'Unbekannt';
-                const fragesteller = data.Fragesteller ? highlightText(data.Fragesteller, matches, 'Fragesteller') : 'Anonym';
-                const autor = data['Antwort-Autor'] ? highlightText(data['Antwort-Autor'], matches, 'Antwort-Autor') : 'Community';
-
-                const faqElement = document.createElement('div');
-                faqElement.className = 'faq-item';
-                faqElement.id = slug; 
-                
-                const isActive = query ? 'active' : '';
+            const fragment = document.createDocumentFragment();
+            pageResults.forEach(res => {
+                const d = res.item;
+                const m = res.matches;
+                const slug = generateSlug(d.Frage);
+                const conf = getConfidenceLevel(d.Confidence);
+                const isOpen = query ? 'active' : '';
                 const isShow = query ? 'show' : '';
+                const statusTag = d.Status === 'überarbeitet'
+                    ? '<span class="tag tag-status-updated" title="Diese Antwort wurde kürzlich verbessert">✨ Verbessert</span>'
+                    : '';
+                const answers = parseInt(d.Antworten) || 1;
+                const answersTag = answers > 1 ? `<span class="tag tag-channel" title="${answers} Quellen zusammengeführt">📚 ${answers} Quellen</span>` : '';
+                const confDot = `<span class="confidence-dot ${conf.cls}" title="Confidence: ${conf.label}"></span>`;
 
-                faqElement.innerHTML = `
-                    <div class="faq-header ${isActive}" onclick="toggleFaq(this)">
+                const qSafe = query ? highlightText(escapeHtml(d.Frage), m, 'Frage') : escapeHtml(d.Frage);
+                const aSafe = query ? highlightText(escapeHtml(d.Antwort), m, 'Antwort') : escapeHtml(d.Antwort);
+                const aLinked = linkify(aSafe);
+                const kanalSafe = escapeHtml(d.Kanal || 'Unbekannt');
+                const fragesteller = escapeHtml(d.Fragesteller || 'Anonym');
+                const autor = escapeHtml(d['Antwort-Autor'] || 'Community');
+
+                const el = document.createElement('div');
+                el.className = 'faq-item';
+                el.id = slug;
+                el.innerHTML = `
+                    <div class="faq-header ${isOpen}" onclick="toggleFaq(this)">
                         <div class="faq-header-content">
                             <span class="faq-meta">
-                                ${data.Kategorie}
-                                <span class="channel-tag">#${kanal}</span>
-                                <span class="version-tag">Ver. ${data.Version}</span>
+                                ${confDot}
+                                <span class="cat-label">${escapeHtml(d.Kategorie)}</span>
+                                <span class="tag tag-channel">#${kanalSafe}</span>
+                                <span class="tag tag-version">Ver. ${escapeHtml(d.Version)}</span>
+                                ${statusTag}${answersTag}
                             </span>
-                            <h2 class="faq-question">${highlightedQuestion}</h2>
+                            <h2 class="faq-question">${qSafe}</h2>
                         </div>
                         <div class="faq-actions">
-                            <button class="copy-btn" onclick="copyLink(event, '${slug}')" title="Direktlink kopieren">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                            <button class="icon-btn" onclick="copyLink(event,'${slug}')" title="Direktlink kopieren" aria-label="Link kopieren">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
                             </button>
                             <div class="faq-arrow"></div>
                         </div>
@@ -343,45 +817,57 @@
                     <div class="faq-answer-wrapper ${isShow}">
                         <div class="faq-answer-inner">
                             <div class="faq-answer">
-                                ${highlightedAnswer}
-                                
+                                ${aLinked}
                                 <div class="faq-details">
-                                    <div class="detail-item" title="Wann wurde das gefragt?"><span class="detail-label">🕒 Zeit:</span> <span class="detail-value">${datumUhrzeit}</span></div>
-                                    <div class="detail-item"><span class="detail-label">👤 Von:</span> <span class="detail-value">${fragesteller}</span></div>
-                                    <div class="detail-item"><span class="detail-label">💬 Antwort:</span> <span class="detail-value">${autor}</span></div>
+                                    <div class="detail-item"><span class="detail-label">🕒</span> <span class="detail-value">${formatDate(d.Datum)}</span></div>
+                                    <div class="detail-item"><span class="detail-label">👤</span> <span class="detail-value">${fragesteller}</span></div>
+                                    <div class="detail-item"><span class="detail-label">💬</span> <span class="detail-value">${autor}</span></div>
+                                    <div class="detail-item"><span class="detail-label">📊</span> <span class="detail-value">${conf.label}</span></div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                `;
-                resultsContainer.appendChild(faqElement);
+                    </div>`;
+                fragment.appendChild(el);
             });
+            resultsContainer.appendChild(fragment);
+            renderPagination(totalPages);
 
-            if (isFirstLoad) {
-                checkUrlHashAndScroll();
-                isFirstLoad = false;
-            }
-        }
-
-        function checkUrlHashAndScroll() {
-            const hash = window.location.hash.substring(1);
-            if (hash) {
+            if (location.hash) {
                 setTimeout(() => {
-                    const targetElement = document.getElementById(hash);
-                    if (targetElement) {
-                        const header = targetElement.querySelector('.faq-header');
-                        header.classList.add('active');
-                        targetElement.querySelector('.faq-answer-wrapper').classList.add('show');
-                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        targetElement.classList.add('target-highlight');
+                    const target = document.getElementById(location.hash.substring(1));
+                    if (target) {
+                        target.querySelector('.faq-header').classList.add('active');
+                        target.querySelector('.faq-answer-wrapper').classList.add('show');
+                        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        target.classList.add('target-highlight');
                     }
                 }, 100);
             }
         }
 
+        // === PAGINATION ===
+        function renderPagination(totalPages) {
+            if (totalPages <= 1) { paginationContainer.innerHTML = ''; return; }
+            let html = `<button class="page-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>‹ Zurück</button>`;
+            const start = Math.max(1, currentPage - 2);
+            const end = Math.min(totalPages, currentPage + 2);
+            for (let i = start; i <= end; i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+            }
+            html += `<span class="page-info">${currentPage} / ${totalPages}</span>`;
+            html += `<button class="page-btn" onclick="goPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Weiter ›</button>`;
+            paginationContainer.innerHTML = html;
+        }
+        function goPage(p) {
+            currentPage = p;
+            updateResults();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // === EVENTS ===
         searchBox.addEventListener('input', () => {
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => updateResults(), 150); 
+            debounceTimer = setTimeout(() => { currentPage = 1; updateResults(); }, 150);
         });
     </script>
 </body>

@@ -89,10 +89,7 @@
         .faq-meta { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
         
         .channel-tag { background: #f3f4f6; color: #4b5563; padding: 2px 8px; border-radius: 4px; font-size: 10px; }
-        
-        /* Styles für die Versions-Etiketten (Spezifisch und Allgemein) */
         .version-tag { background: #e0e7ff; color: #4338ca; padding: 2px 8px; border-radius: 4px; font-size: 10px; border: 1px solid #c7d2fe; white-space: nowrap; }
-        .version-tag.general { background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; }
 
         .faq-question { font-weight: 700; font-size: 1.1rem; margin: 0; color: var(--text-main); line-height: 1.4; }
         .faq-actions { display: flex; align-items: center; gap: 15px; }
@@ -171,26 +168,29 @@
                 .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
         }
 
-        // Sucht automatisch nach Versionen im Text
-        function extractVersionsFromText(text) {
-            if (!text) return [];
-            const regex = /(?:v|version|rel\.|release|beta)[\s-]*([0-9]+(?:\.[0-9]+)*)/gi;
-            let versions = [];
-            let match;
-            while ((match = regex.exec(text)) !== null) {
-                versions.push(match[1]); 
-            }
-            return [...new Set(versions)]; 
+        // --- DIE NEUE MAGIE ---
+        // Weist jedem Post anhand seines Datums eine feste Version zu
+        function getVersionByDate(datumString) {
+            if (!datumString) return 'Unbekannt';
+            
+            // Safes Parsing für alle Browser (ersetzt Leerzeichen durch ein T)
+            const postDate = new Date(datumString.replace(' ', 'T'));
+            
+            // CleverCoffee Release-Zeitstrahl
+            if (postDate >= new Date('2026-01-01')) return 'V4.0';
+            if (postDate >= new Date('2025-01-01')) return 'V4.0 Beta';
+            if (postDate >= new Date('2023-12-01')) return 'V3.3';
+            return 'V3.0 / älter';
         }
 
         fetch('faq-daten.json')
             .then(response => response.json())
             .then(data => {
+                // Version aus dem Datum ableiten und als neues Feld "Version" speichern
                 faqData = data.map(item => {
-                    const textToScan = item.Frage + " " + item.Antwort;
                     return {
                         ...item,
-                        extractedVersions: extractVersionsFromText(textToScan)
+                        Version: getVersionByDate(item.Datum)
                     };
                 });
                 
@@ -204,31 +204,17 @@
             });
 
         function initVersionFilter() {
-            let allVersions = new Set();
-            faqData.forEach(item => {
-                item.extractedVersions.forEach(v => allVersions.add(v));
-            });
+            // Wir definieren die chronologisch richtige Reihenfolge manuell, damit sie im Dropdown immer stimmt
+            const correctOrder = ['V4.0', 'V4.0 Beta', 'V3.3', 'V3.0 / älter'];
             
-            let versions = Array.from(allVersions);
-            
-            // Versionen sortieren (Höchste nach oben)
-            versions.sort((a, b) => {
-                const pa = a.split('.').map(Number);
-                const pb = b.split('.').map(Number);
-                for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
-                    let na = pa[i] || 0;
-                    let nb = pb[i] || 0;
-                    if (na > nb) return -1;
-                    if (na < nb) return 1;
-                }
-                return 0;
-            });
+            // Nur die Versionen ins Dropdown packen, für die wir auch Posts haben
+            const versions = correctOrder.filter(v => faqData.some(item => item.Version === v));
 
             let optionsHtml = '';
             if(versions.length > 0) {
-                optionsHtml += `<option value="${versions[0]}">Aktuellste (Ver. ${versions[0]})</option>`;
+                optionsHtml += `<option value="${versions[0]}">Aktuellste (${versions[0]})</option>`;
                 versions.slice(1).forEach(v => {
-                    optionsHtml += `<option value="${v}">Version ${v}</option>`;
+                    optionsHtml += `<option value="${v}">${v}</option>`;
                 });
             }
             optionsHtml += `<option value="all">Alle Versionen anzeigen</option>`;
@@ -305,23 +291,15 @@
                 resultsToRender = resultsToRender.filter(res => res.item.Kategorie === currentCategory);
             }
 
-            // Filter nach Version
+            // Exakter Filter nach der zugewiesenen Version aus dem Datum
             if (selectedVersion !== 'all') {
-                resultsToRender = resultsToRender.filter(res => {
-                    const itemVersions = res.item.extractedVersions;
-                    // Allgemeingültige Fragen immer mit anzeigen
-                    if (itemVersions.length === 0) return true;
-                    // Sonst prüfen, ob die Version passt
-                    return itemVersions.some(v => 
-                        v === selectedVersion || selectedVersion.startsWith(v) || v.startsWith(selectedVersion)
-                    );
-                });
+                resultsToRender = resultsToRender.filter(res => res.item.Version === selectedVersion);
             }
 
             resultsContainer.innerHTML = ''; 
             
             if(resultsToRender.length === 0) {
-                resultsContainer.innerHTML = '<div class="no-results">Keine passenden Antworten für diese Kriterien gefunden.</div>';
+                resultsContainer.innerHTML = '<div class="no-results">Keine passenden Antworten für diese Kriterien gefunden. Versuch es mit einer anderen Version.</div>';
                 return;
             }
 
@@ -337,16 +315,6 @@
                 const kanal = data.Kanal ? highlightText(data.Kanal, matches, 'Kanal') : 'Unbekannt';
                 const fragesteller = data.Fragesteller ? highlightText(data.Fragesteller, matches, 'Fragesteller') : 'Anonym';
                 const autor = data['Antwort-Autor'] ? highlightText(data['Antwort-Autor'], matches, 'Antwort-Autor') : 'Community';
-                
-                // --- DAS UPDATE FÜR DIE TAGS ---
-                let versionTagsHtml = '';
-                if (data.extractedVersions.length > 0) {
-                    // Blaue Tags für gefundene Versionen
-                    versionTagsHtml = data.extractedVersions.map(v => `<span class="version-tag">Ver. ${v}</span>`).join('');
-                } else {
-                    // Graues Tag für alles andere
-                    versionTagsHtml = `<span class="version-tag general">Allgemein</span>`;
-                }
 
                 const faqElement = document.createElement('div');
                 faqElement.className = 'faq-item';
@@ -361,7 +329,7 @@
                             <span class="faq-meta">
                                 ${data.Kategorie}
                                 <span class="channel-tag">#${kanal}</span>
-                                ${versionTagsHtml}
+                                <span class="version-tag">Ver. ${data.Version}</span>
                             </span>
                             <h2 class="faq-question">${highlightedQuestion}</h2>
                         </div>
